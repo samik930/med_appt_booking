@@ -1,6 +1,7 @@
 import './App.css'
 import { Routes, Route, useLocation } from 'react-router-dom'
 import Header from './components/Header'
+import DoctorHeader from './components/DoctorHeader'
 import LandingHeader from './components/LandingHeader'
 import AuthHeader from './components/AuthHeader'
 import Home from './pages/Home'
@@ -13,7 +14,7 @@ import Doctors from './pages/Doctors'
 import DoctorProfile from './pages/DoctorProfile'
 import Booking from './pages/Booking'
 import Appointments from './pages/Appointments'
-import Dashboard from './pages/Dashboard'
+//import Dashboard from './pages/Dashboard'
 import PatientDashboard from './pages/PatientDashboard'
 import DoctorDashboard from './pages/DoctorDashboard'
 import Footer from './components/Footer'
@@ -22,10 +23,11 @@ function App() {
   const location = useLocation()
   const isLanding = location.pathname === '/'
   const isAuthPage = ['/login', '/register', '/doctor-login', '/doctor-register'].includes(location.pathname)
+  const isDoctorDashboard = location.pathname === '/doctor-dashboard'
 
   return (
     <div className="app-root">
-      {isLanding ? <LandingHeader /> : isAuthPage ? <AuthHeader /> : <Header />}
+      {isLanding ? <LandingHeader /> : isAuthPage ? <AuthHeader /> : isDoctorDashboard ? <DoctorHeader /> : <Header />}
       <main>
         <Routes>
           <Route path="/" element={<Landing />} />
@@ -38,9 +40,9 @@ function App() {
           <Route path="/doctors/:id" element={<DoctorProfile />} />
           <Route path="/book/:doctorId" element={<Booking />} />
           <Route path="/appointments" element={<Appointments />} />
-          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/patient-dashboard" element={<PatientDashboard />} />
           <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
+          <Route path="/doctor-profile/:id" element={<DoctorProfile />} />
         </Routes>
       </main>
       {!isLanding && <Footer />}
