@@ -26,7 +26,18 @@ def create_appointment():
         
         # Parse date and time
         appointment_date = datetime.strptime(data['appointment_date'], '%Y-%m-%d').date()
-        appointment_time = datetime.strptime(data['appointment_time'], '%H:%M').time()
+        
+        # Handle different time formats
+        time_str = data['appointment_time']
+        try:
+            # Try HH:MM format first
+            appointment_time = datetime.strptime(time_str, '%H:%M').time()
+        except ValueError:
+            try:
+                # Try HH:MM:SS format
+                appointment_time = datetime.strptime(time_str, '%H:%M:%S').time()
+            except ValueError:
+                return jsonify({'error': f'Invalid time format: {time_str}. Expected HH:MM or HH:MM:SS'}), 400
         
         # Check if appointment time is in the future
         appointment_datetime = datetime.combine(appointment_date, appointment_time)
@@ -55,9 +66,8 @@ def create_appointment():
         )
         
         from models import db
-        with db.session.begin():
-            db.session.add(appointment)
-            db.session.commit()
+        db.session.add(appointment)
+        db.session.commit()
         
         return jsonify({
             'message': 'Appointment booked successfully',

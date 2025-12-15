@@ -45,23 +45,32 @@ export default function DoctorProfile() {
     try {
       const token = localStorage.getItem('token')
       const userData = JSON.parse(localStorage.getItem('user') || '{}')
-      const response = await fetch('http://127.0.0.1:5000/api/appointments', {
+      const appointmentData = { 
+        patient_id: userData.id,
+        doctor_id: id, 
+        appointment_date: selectedSlot.date, 
+        appointment_time: selectedSlot.time 
+      }
+      
+      console.log('Booking appointment with data:', appointmentData)
+      console.log('Token exists:', token ? 'yes' : 'no')
+      
+      const response = await fetch('http://127.0.0.1:5000/api/appointments/', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          patient_id: userData.id,
-          doctor_id: id, 
-          appointment_date: selectedSlot.date, 
-          appointment_time: selectedSlot.time 
-        })
+        body: JSON.stringify(appointmentData)
       })
+      
+      console.log('Response status:', response.status)
       
       if (response.ok) {
         const result = await response.json()
+        console.log('Booking successful:', result)
         alert('Appointment booked successfully!')
         navigate('/patient-dashboard')
       } else {
         const errorData = await response.json()
+        console.error('Booking error:', errorData)
         alert(`Error: ${errorData.error || 'Failed to book appointment'}`)
       }
     } catch (error) { 
