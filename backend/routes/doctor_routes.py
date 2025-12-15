@@ -5,13 +5,11 @@ from models import Doctor, Appointment
 
 doctor_bp = Blueprint('doctor', __name__)
 
-@doctor_bp.route('/', methods=['GET'])
+@doctor_bp.route('', methods=['GET'])
 def get_doctors():
     try:
         doctors = Doctor.query.all()
-        return jsonify({
-            'doctors': [doctor.to_dict() for doctor in doctors]
-        }), 200
+        return jsonify([doctor.to_dict() for doctor in doctors]), 200
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -20,9 +18,7 @@ def get_doctors():
 def get_doctor(doctor_id):
     try:
         doctor = Doctor.query.get_or_404(doctor_id)
-        return jsonify({
-            'doctor': doctor.to_dict()
-        }), 200
+        return jsonify(doctor.to_dict()), 200
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500

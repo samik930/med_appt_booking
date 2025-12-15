@@ -49,16 +49,27 @@ export default function PatientDashboard() {
   const fetchDoctors = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:5000/api/doctors', {
+      console.log('Fetching doctors with token:', token ? 'exists' : 'missing')
+      
+      const response = await fetch('http://127.0.0.1:5000/api/doctors', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       })
       
+      console.log('Response status:', response.status)
+      console.log('Response ok:', response.ok)
+      
       if (response.ok) {
         const data = await response.json()
+        console.log('Raw data from API:', data)
+        console.log('Data type:', typeof data)
+        console.log('Data length:', Array.isArray(data) ? data.length : 'not array')
         setDoctors(data)
+      } else {
+        const errorText = await response.text()
+        console.error('API Error:', response.status, errorText)
       }
     } catch (error) {
       console.error('Error fetching doctors:', error)
@@ -123,9 +134,17 @@ export default function PatientDashboard() {
       doctor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       doctor.specialization.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesSpecialization = !selectedSpecialization || doctor.specialization === selectedSpecialization
+    
+    // Debug each doctor's filtering
+    if (selectedSpecialization) {
+      console.log(`Doctor: ${doctor.name}, Specialization: "${doctor.specialization}" vs Selected: "${selectedSpecialization}"`)
+      console.log(`Matches specialization: ${matchesSpecialization}`)
+    }
+    
     return matchesSearch && matchesSpecialization
   })
 
+  
   const handleLogout = () => {
     localStorage.removeItem('token')
     localStorage.removeItem('user')
@@ -219,31 +238,41 @@ export default function PatientDashboard() {
                 <option value="Orthopedics">Orthopedics</option>
                 <option value="Neurology">Neurology</option>
               </select>
-            </div>
+              
+                          </div>
 
-            <div className="doctors-grid">
-              {filteredDoctors.map(doctor => (
-                <div key={doctor.id} className="doctor-card">
-                  <div className="doctor-top">
-                    <div className="avatar-pill">{doctor.name.split(' ').map(n => n[0]).join('')}</div>
-                    <div className="doctor-meta">
-                      <h4>{doctor.name}</h4>
-                      <div className="muted small">{doctor.specialization}</div>
-                      <div className="muted small">{doctor.experience} years experience</div>
+            {filteredDoctors.length > 0 ? (
+              <div className="doctors-grid">
+                {filteredDoctors.map(doctor => (
+                  <div key={doctor.id} className="doctor-card">
+                    <div className="doctor-top">
+                      <div className="avatar-pill">{doctor.name.split(' ').map(n => n[0]).join('')}</div>
+                      <div className="doctor-meta">
+                        <h4>{doctor.name}</h4>
+                        <div className="muted small">{doctor.specialization}</div>
+                        <div className="muted small">{doctor.experience_years} years experience</div>
+                      </div>
+                    </div>
+                    
+                    <div className="doctor-actions">
+                      <button 
+                        onClick={() => navigate(`/doctor-profile/${doctor.id}`)}
+                        className="primary small"
+                      >
+                        View Available Slots
+                      </button>
                     </div>
                   </div>
-                  
-                  <div className="doctor-actions">
-                    <button 
-                      onClick={() => navigate(`/doctor-profile/${doctor.id}`)}
-                      className="primary small"
-                    >
-                      View Available Slots
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="no-doctors-found">
+                <p>No doctors found for the selected criteria.</p>
+                {selectedSpecialization && (
+                  <p>Try selecting a different specialization or search term.</p>
+                )}
+              </div>
+            )}
           </div>
         )}
 

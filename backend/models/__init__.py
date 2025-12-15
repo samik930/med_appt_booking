@@ -7,5 +7,6 @@ db = SQLAlchemy()
 from .patient import Patient
 from .doctor import Doctor
 from .appointment import Appointment
+from .availability import Availability
 
-__all__ = ['db', 'Patient', 'Doctor', 'Appointment']
+__all__ = ['db', 'Patient', 'Doctor', 'Appointment', 'Availability']

@@ -17,7 +17,7 @@ export default function DoctorProfile() {
   const fetchDoctorDetails = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`http://localhost:5000/api/doctors/${id}`, {
+      const response = await fetch(`http://127.0.0.1:5000/api/doctors/${id}`, {
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
       })
       if (response.ok) setDoctor(await response.json())
@@ -28,8 +28,12 @@ export default function DoctorProfile() {
   const fetchAvailability = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`http://localhost:5000/api/doctor/${id}/availability`, {
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+      const response = await fetch(`http://127.0.0.1:5000/api/doctor/availability`, {
+        headers: { 
+          'Authorization': `Bearer ${token}`, 
+          'X-Doctor-ID': id,
+          'Content-Type': 'application/json' 
+        }
       })
       if (response.ok) setAvailability(await response.json())
     } catch (error) { console.error('Error:', error) }
@@ -40,30 +44,46 @@ export default function DoctorProfile() {
     
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:5000/api/appointments', {
+      const userData = JSON.parse(localStorage.getItem('user') || '{}')
+      const response = await fetch('http://127.0.0.1:5000/api/appointments', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ doctor_id: id, date: selectedSlot.date, time: selectedSlot.time })
+        body: JSON.stringify({ 
+          patient_id: userData.id,
+          doctor_id: id, 
+          appointment_date: selectedSlot.date, 
+          appointment_time: selectedSlot.time 
+        })
       })
+      
       if (response.ok) {
+        const result = await response.json()
         alert('Appointment booked successfully!')
         navigate('/patient-dashboard')
+      } else {
+        const errorData = await response.json()
+        alert(`Error: ${errorData.error || 'Failed to book appointment'}`)
       }
-    } catch (error) { console.error('Error:', error) }
+    } catch (error) { 
+      console.error('Error booking appointment:', error)
+      alert('Failed to book appointment. Please try again.')
+    }
   }
 
   if (loading) return <div className="page container">Loading...</div>
 
   return (
     <div className="page doctor-profile container">
-      <button onClick={() => navigate(-1)} className="secondary">← Back</button>
+      <div className="back-button-container">
+        <button onClick={() => navigate(-1)} className="secondary">← Back</button>
+      </div>
       
       <div className="doctor-header">
         <div className="avatar-pill large">{doctor?.name.split(' ').map(n => n[0]).join('')}</div>
         <div className="doctor-info">
           <h2>{doctor?.name}</h2>
           <p className="specialization">{doctor?.specialization}</p>
-          <p className="experience">{doctor?.experience} years experience</p>
+          <p className="experience">{doctor?.experience_years || doctor?.experience} years of experience</p>
           <p className="bio">{doctor?.bio || 'Experienced practitioner.'}</p>
         </div>
       </div>

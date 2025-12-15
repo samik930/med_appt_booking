@@ -11,7 +11,7 @@ export default function Register() {
     phone: '',
     dateOfBirth: '',
     gender: 'male'
-  })
+  }) 
   const [errors, setErrors] = useState({})
   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()

@@ -106,6 +106,18 @@ input:focus, textarea:focus, select:focus{
   box-shadow: 0 8px 24px rgba(100,108,255,0.06);
 }
 
+/* Dark mode select styling */
+html:not([data-theme="light"]) select {
+  background: rgba(74, 85, 104, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+html:not([data-theme="light"]) select:focus {
+  background: rgba(74, 85, 104, 0.9);
+  border-color: rgba(100, 108, 255, 0.8);
+}
+
 /* Layout helpers */
 .page{ padding:2rem 0; }
 .readable{ max-width:60ch; margin:0 auto; }
@@ -565,4 +577,15 @@ html:not([data-theme="light"]) .dashboard-tabs button {
 
 .appointment-card.past {
   opacity: 0.7;
+}
+
+.no-doctors-found {
+  text-align: center;
+  padding: 3rem;
+  color: var(--muted);
+}
+
+.no-doctors-found p {
+  margin: 0.5rem 0;
+  font-size: 1.1rem;
 }

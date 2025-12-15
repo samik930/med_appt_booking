@@ -50,16 +50,26 @@ export default function DoctorDashboard() {
   const fetchAvailability = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:5000/api/doctor/availability', {
+      const userData = JSON.parse(localStorage.getItem('user') || '{}')
+      console.log('Fetching availability with doctor ID:', userData.id)
+      
+      const response = await fetch('http://127.0.0.1:5000/api/doctor/availability', {
         headers: {
           'Authorization': `Bearer ${token}`,
+          'X-Doctor-ID': userData.id,
           'Content-Type': 'application/json'
         }
       })
 
+      console.log('Fetch availability response status:', response.status)
+      
       if (response.ok) {
         const data = await response.json()
+        console.log('Availability data received:', data)
         setAvailabilitySlots(data)
+      } else {
+        const errorText = await response.text()
+        console.error('Fetch availability error:', response.status, errorText)
       }
     } catch (error) {
       console.error('Error fetching availability:', error)
@@ -135,18 +145,29 @@ export default function DoctorDashboard() {
 
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:5000/api/doctor/availability', {
+      const userData = JSON.parse(localStorage.getItem('user') || '{}')
+      const slotData = { ...newSlot, doctor_id: userData.id }
+      console.log('Sending data:', slotData)
+      
+      const response = await fetch('http://127.0.0.1:5000/api/doctor/availability', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
+          'X-Doctor-ID': userData.id,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(newSlot)
+        body: JSON.stringify(slotData)
       })
 
+      console.log('Response status:', response.status)
+      
       if (response.ok) {
         fetchAvailability()
         setNewSlot({ date: '', time: '' })
+      } else {
+        const errorText = await response.text()
+        console.error('Error response:', errorText)
+        alert(`Error: ${response.status} - ${errorText}`)
       }
     } catch (error) {
       console.error('Error adding availability slot:', error)
@@ -156,10 +177,12 @@ export default function DoctorDashboard() {
   const removeAvailabilitySlot = async (slotId) => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`http://localhost:5000/api/doctor/availability/${slotId}`, {
+      const userData = JSON.parse(localStorage.getItem('user') || '{}')
+      const response = await fetch(`http://127.0.0.1:5000/api/doctor/availability/${slotId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
+          'X-Doctor-ID': userData.id,
           'Content-Type': 'application/json'
         }
       })
