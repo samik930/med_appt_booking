@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
-from models import Doctor, Appointment
+from models import Doctor, Appointment, Patient
 
 doctor_bp = Blueprint('doctor', __name__)
 
@@ -14,6 +14,7 @@ def get_doctors():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+
 @doctor_bp.route('/<int:doctor_id>', methods=['GET'])
 def get_doctor(doctor_id):
     try:
@@ -22,6 +23,7 @@ def get_doctor(doctor_id):
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
 
 @doctor_bp.route('/profile', methods=['GET'])
 @jwt_required()
@@ -35,6 +37,7 @@ def get_doctor_profile():
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
 
 @doctor_bp.route('/profile', methods=['PUT'])
 @jwt_required()
@@ -63,6 +66,26 @@ def update_doctor_profile():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+
+@doctor_bp.route('/patients', methods=['GET'])
+def get_doctor_patients():
+    try:
+        # Get doctor_id from JWT token (temporary fix)
+        doctor_id = request.args.get('doctor_id') or 1  # Default to doctor ID 1 for testing
+        
+        # Get all patients who have appointments with this doctor
+        appointments = Appointment.query.filter_by(doctor_id=doctor_id).all()
+        patient_ids = list(set([apt.patient_id for apt in appointments]))
+        patients = Patient.query.filter(Patient.id.in_(patient_ids)).all()
+        
+        return jsonify({
+            'patients': [patient.to_dict() for patient in patients]
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 @doctor_bp.route('/appointments', methods=['GET'])
 @jwt_required()
 def get_doctor_appointments():
@@ -89,3 +112,4 @@ def get_doctor_appointments():
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+

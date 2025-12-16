@@ -29,16 +29,31 @@ export default function DoctorDashboard() {
   const fetchAppointments = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:5000/api/appointments/doctor', {
+      const userData = JSON.parse(localStorage.getItem('user') || '{}')
+      console.log('Fetching appointments for doctor ID:', userData.id)
+      console.log('Token exists:', !!token)
+      
+      const response = await fetch(`http://127.0.0.1:5000/api/appointments/doctor?doctor_id=${userData.id}`, {
+        method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       })
 
+      console.log('Response status:', response.status)
+      console.log('Response ok:', response.ok)
+
       if (response.ok) {
         const data = await response.json()
-        setAppointments(data)
+        console.log('Appointments data received:', data)
+        console.log('Appointments array:', data.appointments || data)
+        console.log('Data type:', typeof data)
+        console.log('Is array?', Array.isArray(data.appointments || data))
+        setAppointments(data.appointments || data)
+      } else {
+        const errorData = await response.json()
+        console.error('Error response:', errorData)
       }
     } catch (error) {
       console.error('Error fetching appointments:', error)
@@ -52,7 +67,7 @@ export default function DoctorDashboard() {
       const token = localStorage.getItem('token')
       const userData = JSON.parse(localStorage.getItem('user') || '{}')
       console.log('Fetching availability with doctor ID:', userData.id)
-      
+
       const response = await fetch('http://127.0.0.1:5000/api/doctor/availability', {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -62,7 +77,7 @@ export default function DoctorDashboard() {
       })
 
       console.log('Fetch availability response status:', response.status)
-      
+
       if (response.ok) {
         const data = await response.json()
         console.log('Availability data received:', data)
@@ -79,7 +94,7 @@ export default function DoctorDashboard() {
   const fetchPatients = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:5000/api/doctor/patients', {
+      const response = await fetch('http://127.0.0.1:5000/api/doctor/patients', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -130,7 +145,26 @@ export default function DoctorDashboard() {
   }
 
   const getPendingAppointments = () => {
-    return appointments.filter(apt => apt.status === 'pending')
+    console.log('Raw appointments state:', appointments)
+    console.log('Appointments length:', appointments.length)
+    
+    if (appointments.length === 0) {
+      console.log('No appointments found in state')
+      return []
+    }
+    
+    const pending = appointments.filter(apt => {
+      console.log('Checking appointment:', apt)
+      console.log('Appointment status:', apt.status)
+      console.log('Status equals scheduled?', apt.status === 'scheduled')
+      console.log('Status equals pending?', apt.status === 'pending')
+      console.log('Status equals confirmed?', apt.status === 'confirmed')
+      // Filter for both 'scheduled' and 'pending' to catch all appointment requests
+      return apt.status === 'scheduled' || apt.status === 'pending'
+    })
+    
+    console.log('Filtered pending appointments:', pending)
+    return pending
   }
 
   const getConfirmedAppointments = () => {
@@ -148,7 +182,7 @@ export default function DoctorDashboard() {
       const userData = JSON.parse(localStorage.getItem('user') || '{}')
       const slotData = { ...newSlot, doctor_id: userData.id }
       console.log('Sending data:', slotData)
-      
+
       const response = await fetch('http://127.0.0.1:5000/api/doctor/availability', {
         method: 'POST',
         headers: {
@@ -160,7 +194,7 @@ export default function DoctorDashboard() {
       })
 
       console.log('Response status:', response.status)
-      
+
       if (response.ok) {
         fetchAvailability()
         setNewSlot({ date: '', time: '' })
@@ -289,33 +323,50 @@ export default function DoctorDashboard() {
         {activeTab === 'requests' && (
           <div className="dashboard-section">
             <h3>Appointment Requests</h3>
-            {getPendingAppointments().length === 0 ? (
-              <p>No pending appointment requests.</p>
-            ) : (
-              <div className="appointments-list">
-                {getPendingAppointments().map(appointment => (
-                  <div key={appointment.id} className="appointment-card">
-                    <h4>{appointment.patient_name}</h4>
-                    <p>Date: {new Date(appointment.appointment_date).toLocaleDateString()}</p>
-                    <p>Time: {appointment.appointment_time}</p>
-                    <div className="appointment-actions">
-                      <button
-                        className="success"
-                        onClick={() => updateAppointmentStatus(appointment.id, 'confirmed')}
-                      >
-                        Approve
-                      </button>
-                      <button
-                        className="danger"
-                        onClick={() => updateAppointmentStatus(appointment.id, 'rejected')}
-                      >
-                        Reject
-                      </button>
-                    </div>
+            {(() => {
+              console.log('=== RENDERING APPOINTMENT REQUESTS ===')
+              console.log('Active tab is requests:', activeTab === 'requests')
+              console.log('Current appointments state:', appointments)
+              
+              const pendingApps = getPendingAppointments()
+              console.log('Rendering pending appointments count:', pendingApps.length)
+              console.log('Pending appointments details:', pendingApps)
+              
+              if (pendingApps.length === 0) {
+                console.log('Rendering: No pending appointments message')
+                return <p>No pending appointment requests.</p>
+              } else {
+                console.log('Rendering: Appointment list with', pendingApps.length, 'items')
+                return (
+                  <div className="appointments-list">
+                    {pendingApps.map(appointment => {
+                      console.log('Rendering appointment card:', appointment)
+                      return (
+                        <div key={appointment.id} className="appointment-card">
+                          <h4>{appointment.patient?.name || 'Patient'}</h4>
+                          <p>Date: {new Date(appointment.appointment_date).toLocaleDateString()}</p>
+                          <p>Time: {appointment.appointment_time}</p>
+                          <div className="appointment-actions">
+                            <button
+                              className="success"
+                              onClick={() => updateAppointmentStatus(appointment.id, 'confirmed')}
+                            >
+                              Approve
+                            </button>
+                            <button
+                              className="danger"
+                              onClick={() => updateAppointmentStatus(appointment.id, 'rejected')}
+                            >
+                              Reject
+                            </button>
+                          </div>
+                        </div>
+                      )
+                    })}
                   </div>
-                ))}
-              </div>
-            )}
+                )
+              }
+            })()}
           </div>
         )}
 
@@ -328,7 +379,7 @@ export default function DoctorDashboard() {
               <div className="appointments-list">
                 {getConfirmedAppointments().map(appointment => (
                   <div key={appointment.id} className="appointment-card">
-                    <h4>{appointment.patient_name}</h4>
+                    <h4>{appointment.patient?.name || 'Patient'}</h4>
                     <p>Date: {new Date(appointment.appointment_date).toLocaleDateString()}</p>
                     <p>Time: {appointment.appointment_time}</p>
                     <p>Status: <span className="status confirmed">Confirmed</span></p>

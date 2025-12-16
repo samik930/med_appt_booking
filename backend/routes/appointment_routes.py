@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from datetime import datetime, time
 
-from models import Appointment, Doctor, Patient
+from models import Appointment, Doctor, Patient, db
 
 appointment_bp = Blueprint('appointment', __name__)
 
@@ -150,6 +150,33 @@ def cancel_appointment(appointment_id):
         return jsonify({
             'message': 'Appointment cancelled successfully',
             'appointment': appointment.to_dict()
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@appointment_bp.route('/doctor', methods=['GET'])
+def get_doctor_appointments():
+    try:
+        # Get doctor_id from query parameter (temporary fix)
+        doctor_id = request.args.get('doctor_id') or 1  # Default to doctor ID 1 for testing
+        
+        # Get query parameters for filtering
+        status = request.args.get('status')
+        date = request.args.get('date')
+        
+        query = Appointment.query.options(db.joinedload(Appointment.patient)).filter_by(doctor_id=doctor_id)
+        
+        if status:
+            query = query.filter_by(status=status)
+        
+        if date:
+            query = query.filter_by(appointment_date=datetime.strptime(date, '%Y-%m-%d').date())
+        
+        appointments = query.order_by(Appointment.appointment_date.desc(), Appointment.appointment_time.desc()).all()
+        
+        return jsonify({
+            'appointments': [appointment.to_dict() for appointment in appointments]
         }), 200
         
     except Exception as e:
