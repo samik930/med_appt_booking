@@ -120,7 +120,9 @@ export default function DoctorDashboard() {
   const updateAppointmentStatus = async (appointmentId, newStatus) => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`http://localhost:5000/api/appointments/${appointmentId}/status`, {
+      console.log(`Updating appointment ${appointmentId} to status: ${newStatus}`)
+      
+      const response = await fetch(`http://127.0.0.1:5000/api/appointments/${appointmentId}/status`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -129,11 +131,28 @@ export default function DoctorDashboard() {
         body: JSON.stringify({ status: newStatus })
       })
 
+      console.log('Status update response:', response.status)
+
       if (response.ok) {
+        const result = await response.json()
+        console.log('Status update successful:', result)
         fetchAppointments() // Refresh appointments list
+        alert(`Appointment ${newStatus} successfully!`)
+      } else {
+        // Try to get error response, but handle cases where it's not JSON
+        let errorMessage = 'Unknown error'
+        try {
+          const errorData = await response.json()
+          errorMessage = errorData.error || errorData.message || JSON.stringify(errorData)
+        } catch (e) {
+          errorMessage = await response.text() || `HTTP ${response.status} error`
+        }
+        console.error('Status update failed:', errorMessage)
+        alert(`Failed to update appointment: ${errorMessage}`)
       }
     } catch (error) {
       console.error('Error updating appointment:', error)
+      alert('Error updating appointment. Please try again.')
     }
   }
 
@@ -168,7 +187,13 @@ export default function DoctorDashboard() {
   }
 
   const getConfirmedAppointments = () => {
-    return appointments.filter(apt => apt.status === 'confirmed')
+    console.log('Getting confirmed appointments from:', appointments)
+    const confirmed = appointments.filter(apt => {
+      console.log('Checking appointment for confirmed:', apt.id, apt.status)
+      return apt.status === 'confirmed'
+    })
+    console.log('Confirmed appointments:', confirmed)
+    return confirmed
   }
 
   const addAvailabilitySlot = async () => {

@@ -182,6 +182,40 @@ def get_doctor_appointments():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@appointment_bp.route('/<int:appointment_id>/status', methods=['PUT'])
+def update_appointment_status(appointment_id):
+    try:
+        data = request.get_json()
+        new_status = data.get('status')
+        
+        if not new_status:
+            return jsonify({'error': 'Status is required'}), 400
+        
+        # Valid status values
+        valid_statuses = ['scheduled', 'confirmed', 'rejected', 'cancelled', 'completed']
+        if new_status not in valid_statuses:
+            return jsonify({'error': f'Invalid status. Must be one of: {valid_statuses}'}), 400
+        
+        # Get appointment with patient data
+        appointment = Appointment.query.options(db.joinedload(Appointment.patient)).get(appointment_id)
+        
+        if not appointment:
+            return jsonify({'error': 'Appointment not found'}), 404
+        
+        # Update status
+        old_status = appointment.status
+        appointment.status = new_status
+        db.session.commit()
+        
+        return jsonify({
+            'message': f'Appointment status updated from {old_status} to {new_status}',
+            'appointment': appointment.to_dict()
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
 @appointment_bp.route('/doctor/<int:doctor_id>/available-slots', methods=['GET'])
 def get_available_slots(doctor_id):
     try:

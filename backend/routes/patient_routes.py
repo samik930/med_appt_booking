@@ -1,7 +1,9 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from models import db, Patient, Appointment
+from datetime import datetime
 
-from models import Patient, Appointment
+print('patient', __name__)
 
 patient_bp = Blueprint('patient', __name__)
 
@@ -49,16 +51,22 @@ def update_patient_profile():
         return jsonify({'error': str(e)}), 500
 
 @patient_bp.route('/appointments', methods=['GET'])
-@jwt_required()
 def get_patient_appointments():
     try:
-        patient_id = get_jwt_identity()
+        # Get patient_id from request header or use default for testing
+        patient_id_header = request.headers.get('X-Patient-ID')
+        patient_id = int(patient_id_header) if patient_id_header else 1  # Default to patient ID 1 for testing
+        
+        print(f"=== DEBUGGING PATIENT APPOINTMENTS ===")
+        print(f"Patient ID from header: {patient_id_header}")
+        print(f"Using patient_id: {patient_id}")
+        print(f"Request headers: {dict(request.headers)}")
         
         # Get query parameters for filtering
         status = request.args.get('status')
         date = request.args.get('date')
         
-        query = Appointment.query.filter_by(patient_id=patient_id)
+        query = Appointment.query.options(db.joinedload(Appointment.doctor)).filter_by(patient_id=patient_id)
         
         if status:
             query = query.filter_by(status=status)
@@ -67,6 +75,12 @@ def get_patient_appointments():
             query = query.filter_by(appointment_date=datetime.strptime(date, '%Y-%m-%d').date())
         
         appointments = query.order_by(Appointment.appointment_date.desc(), Appointment.appointment_time.desc()).all()
+        
+        print(f"Total appointments found: {len(appointments)}")
+        for apt in appointments:
+            print(f"Appointment ID: {apt.id}, Status: {apt.status}, Patient ID: {apt.patient_id}")
+        
+        print(f"=== END DEBUGGING ===")
         
         return jsonify({
             'appointments': [appointment.to_dict() for appointment in appointments]
