@@ -88,7 +88,7 @@ export default function Register() {
       localStorage.setItem('token', response.data.access_token)
       localStorage.setItem('user', JSON.stringify(response.data.patient))
       
-      navigate('/dashboard')
+      navigate('/patient-dashboard')
     } catch (error) {
       console.error('Registration error:', error)
       if (error.response?.data?.error) {
