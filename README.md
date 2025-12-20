@@ -36,7 +36,7 @@ A modern, full-stack web application that connects patients with healthcare prov
 
 1. **Clone the repository**
    ```bash
-   git clone [https://github.com/yourusername/med-appt-booking.git](https://github.com/samik930/med_appt_booking.git)
+   git clone https://github.com/samik930/med_appt_booking.git
    cd med-appt-booking
 
 2. **Setting up the backend**
