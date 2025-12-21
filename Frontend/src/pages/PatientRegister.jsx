@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { authAPI } from '../services/api'
 
-export default function Register() {
+export default function PatientRegister() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',

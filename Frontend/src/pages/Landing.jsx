@@ -59,7 +59,7 @@ export default function Landing() {
         <section className="landing-cta">
           <h3>Ready to get started?</h3>
           <div className="cta-buttons">
-            <Link to="/register" className="cta primary">👤 Register as Patient</Link>
+            <Link to="/patient-register" className="cta primary">👤 Register as Patient</Link>
             <Link to="/doctor-register" className="cta secondary">👨‍⚕️ Register as Doctor</Link>
           </div>
         </section>

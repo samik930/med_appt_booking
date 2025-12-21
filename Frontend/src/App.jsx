@@ -7,7 +7,6 @@ import AuthHeader from './components/AuthHeader'
 import Home from './pages/Home'
 import Landing from './pages/Landing'
 import Login from './pages/Login'
-import Register from './pages/Register'
 import DoctorLogin from './pages/DoctorLogin'
 import DoctorRegister from './pages/DoctorRegister'
 import Doctors from './pages/Doctors'
@@ -17,6 +16,7 @@ import Appointments from './pages/Appointments'
 import PatientDashboard from './pages/PatientDashboard'
 import DoctorDashboard from './pages/DoctorDashboard'
 import Footer from './components/Footer'
+import PatientRegister from './pages/PatientRegister'
 
 function App() {
   const location = useLocation()
@@ -32,7 +32,7 @@ function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/home" element={<Home />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+          <Route path="/patient-register" element={<PatientRegister />} />
           <Route path="/doctor-login" element={<DoctorLogin />} />
           <Route path="/doctor-register" element={<DoctorRegister />} />
           <Route path="/doctors" element={<Doctors />} />
