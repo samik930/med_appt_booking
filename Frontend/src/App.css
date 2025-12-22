@@ -310,6 +310,12 @@
   color: var(--accent);
   background: transparent;
 }
+
+html[data-theme="light"] .cta.secondary {
+  border-color: #00a8cc;
+  color: #00a8cc;
+}
+
 .cta.secondary:hover{
   background: rgba(100,108,255,0.1);
   transform: translateY(-4px);

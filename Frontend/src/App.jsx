@@ -4,7 +4,6 @@ import Header from './components/Header'
 import DoctorHeader from './components/DoctorHeader'
 import LandingHeader from './components/LandingHeader'
 import AuthHeader from './components/AuthHeader'
-import Home from './pages/Home'
 import Landing from './pages/Landing'
 import Login from './pages/Login'
 import DoctorLogin from './pages/DoctorLogin'
@@ -30,7 +29,6 @@ function App() {
       <main>
         <Routes>
           <Route path="/" element={<Landing />} />
-          <Route path="/home" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/patient-register" element={<PatientRegister />} />
           <Route path="/doctor-login" element={<DoctorLogin />} />
