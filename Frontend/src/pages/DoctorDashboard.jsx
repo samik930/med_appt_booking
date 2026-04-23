@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+const API_BASE_URL = 'https://med-appt-booking-backend.onrender.com/api'
+
 export default function DoctorDashboard() {
   const [user, setUser] = useState(null)
   const [appointments, setAppointments] = useState([])
@@ -33,7 +35,7 @@ export default function DoctorDashboard() {
       console.log('Fetching appointments for doctor ID:', userData.id)
       console.log('Token exists:', !!token)
       
-      const response = await fetch(`http://127.0.0.1:5000/api/appointments/doctor?doctor_id=${userData.id}`, {
+      const response = await fetch(`${API_BASE_URL}/appointments/doctor?doctor_id=${userData.id}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -68,7 +70,7 @@ export default function DoctorDashboard() {
       const userData = JSON.parse(localStorage.getItem('user') || '{}')
       console.log('Fetching availability with doctor ID:', userData.id)
 
-      const response = await fetch('http://127.0.0.1:5000/api/doctor/availability', {
+      const response = await fetch(`${API_BASE_URL}/doctor/availability`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'X-Doctor-ID': userData.id,
@@ -94,7 +96,7 @@ export default function DoctorDashboard() {
   const fetchPatients = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('http://127.0.0.1:5000/api/doctor/patients', {
+      const response = await fetch(`${API_BASE_URL}/doctor/patients`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -122,7 +124,7 @@ export default function DoctorDashboard() {
       const token = localStorage.getItem('token')
       console.log(`Updating appointment ${appointmentId} to status: ${newStatus}`)
       
-      const response = await fetch(`http://127.0.0.1:5000/api/appointments/${appointmentId}/status`, {
+      const response = await fetch(`${API_BASE_URL}/appointments/${appointmentId}/status`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -208,7 +210,7 @@ export default function DoctorDashboard() {
       const slotData = { ...newSlot, doctor_id: userData.id }
       console.log('Sending data:', slotData)
 
-      const response = await fetch('http://127.0.0.1:5000/api/doctor/availability', {
+      const response = await fetch(`${API_BASE_URL}/doctor/availability`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -237,7 +239,7 @@ export default function DoctorDashboard() {
     try {
       const token = localStorage.getItem('token')
       const userData = JSON.parse(localStorage.getItem('user') || '{}')
-      const response = await fetch(`http://127.0.0.1:5000/api/doctor/availability/${slotId}`, {
+      const response = await fetch(`${API_BASE_URL}/doctor/availability/${slotId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

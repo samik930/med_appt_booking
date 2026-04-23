@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 
+const API_BASE_URL = 'https://med-appt-booking-backend.onrender.com/api'
+
 export default function DoctorProfile() {
   const { id } = useParams()
   const [doctor, setDoctor] = useState(null)
@@ -17,7 +19,7 @@ export default function DoctorProfile() {
   const fetchDoctorDetails = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`http://127.0.0.1:5000/api/doctors/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/doctors/${id}`, {
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
       })
       if (response.ok) setDoctor(await response.json())
@@ -28,7 +30,7 @@ export default function DoctorProfile() {
   const fetchAvailability = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`http://127.0.0.1:5000/api/doctor/availability`, {
+      const response = await fetch(`${API_BASE_URL}/doctor/availability`, {
         headers: { 
           'Authorization': `Bearer ${token}`, 
           'X-Doctor-ID': id,
@@ -55,7 +57,7 @@ export default function DoctorProfile() {
       console.log('Booking appointment with data:', appointmentData)
       console.log('Token exists:', token ? 'yes' : 'no')
       
-      const response = await fetch('http://127.0.0.1:5000/api/appointments/', {
+      const response = await fetch(`${API_BASE_URL}/appointments/`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify(appointmentData)

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+const API_BASE_URL = 'https://med-appt-booking-backend.onrender.com/api'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -14,7 +15,7 @@ export default function Login() {
     setLoading(true)
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/patient/login', {
+      const response = await fetch(`${API_BASE_URL}/auth/patient/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

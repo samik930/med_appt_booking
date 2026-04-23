@@ -26,6 +26,6 @@ export default function Booking() {
         ))}
       </div>
       <button onClick={handleBook} disabled={!slot}>Confirm Booking</button>
-    </div>
+    </div> 
   )
 }

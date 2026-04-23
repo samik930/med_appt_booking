@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+const API_BASE_URL = 'https://med-appt-booking-backend.onrender.com/api'
 
 export default function PatientDashboard() {
   const [user, setUser] = useState(null)
@@ -51,7 +52,7 @@ export default function PatientDashboard() {
       const token = localStorage.getItem('token')
       const userData = JSON.parse(localStorage.getItem('user'))
 
-      const res = await fetch('http://127.0.0.1:5000/api/patients/appointments', {
+      const res = await fetch(`${API_BASE_URL}/patients/appointments`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'X-Patient-ID': userData.id,
@@ -73,7 +74,7 @@ export default function PatientDashboard() {
   const fetchDoctors = async () => {
     try {
       const token = localStorage.getItem('token')
-      const res = await fetch('http://127.0.0.1:5000/api/doctors', {
+      const res = await fetch(`${API_BASE_URL}/doctors`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
